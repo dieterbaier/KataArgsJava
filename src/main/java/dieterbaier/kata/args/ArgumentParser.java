@@ -1,5 +1,7 @@
 package dieterbaier.kata.args;
 
+import dieterbaier.kata.args.InvalidArgumentException.Reasons;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +19,7 @@ public class ArgumentParser {
     return flag;
   }
 
-  public void parse(final String[] args) throws IllegalArgumentException {
+  public void parse(final String[] args) throws InvalidArgumentException {
     final List<ArgumentFlag> givenFlags = new ArrayList<>(0);
 
     convertToArgumentFlags(args, givenFlags);
@@ -46,6 +48,9 @@ public class ArgumentParser {
       for (int j = validFlagsStartPosition; j < validFlags.size(); j++) {
         ArgumentFlag validFlag = validFlags.get(j);
         if (!validFlag.equals(givenFlag)) {
+          if (isFlagSomewhereElse(givenFlags, validFlag))
+            throw new InvalidArgumentException(Reasons.INCORRECTORDEROFARGUMENTS, "Flag " + givenFlag.name()
+                + " is on wrong position.");
           givenFlags.add(i++, validFlag);
           checkSize(givenFlags);
         }
@@ -55,6 +60,14 @@ public class ArgumentParser {
         }
       }
     }
+  }
+
+  private boolean isFlagSomewhereElse(List<ArgumentFlag> givenFlags, ArgumentFlag validFlag) {
+    for (ArgumentFlag givenFlag : givenFlags) {
+      if (givenFlag.equals(validFlag))
+        return true;
+    }
+    return false;
   }
 
   private void convertToArgumentFlags(final String[] args, final List<ArgumentFlag> givenFlags) {
@@ -79,16 +92,17 @@ public class ArgumentParser {
   }
 
   private void setBooleanFlagToTrue(final String[] args, final int argsPosition, final ArgumentFlag booleanFlag) {
-    if (isNextElementAFlag(args, argsPosition))
+    if (isNextElementAFlagOrEndOfArgList(args, argsPosition))
       booleanFlag.setValue(true);
     else
-      throw new IllegalArgumentException("Illegal value for flag " + booleanFlag.name());
+      throw new InvalidArgumentException(Reasons.INVALIDVALUE, "Illegal value for flag " + booleanFlag.name());
 
   }
 
-  private boolean isNextElementAFlag(final String[] args, final int argsPosition) {
+  private boolean isNextElementAFlagOrEndOfArgList(final String[] args, final int argsPosition) {
     int nextElementsPosition = argsPosition + 1;
-    return nextElementsPosition < args.length && ArgumentFlag.isPotentialFlag(args[nextElementsPosition]);
+    return nextElementsPosition == args.length
+        || (nextElementsPosition < args.length && ArgumentFlag.isPotentialFlag(args[nextElementsPosition]));
   }
 
   private int setValue(final String[] args, final int flagsPosition, final ArgumentFlag flag) {
@@ -99,7 +113,7 @@ public class ArgumentParser {
 
   private void checkSize(List<ArgumentFlag> givenFlags) {
     if (givenFlags.size() > validFlags.size()) {
-      throw new IllegalArgumentException("Too many arguments given");
+      throw new InvalidArgumentException(Reasons.TOOMANYARGUMENTS, "Too many arguments given");
     }
   }
 

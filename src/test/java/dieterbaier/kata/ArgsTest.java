@@ -1,9 +1,16 @@
 package dieterbaier.kata;
 
+import static org.hamcrest.MatcherAssert.*;
 import dieterbaier.kata.args.ArgumentParser;
+import dieterbaier.kata.args.InvalidArgumentException;
+import dieterbaier.kata.args.InvalidArgumentException.Reasons;
 
+import org.hamcrest.Matcher;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.AssertJUnit;
+import org.testng.ITestResult;
+
 import static org.testng.AssertJUnit.*;
 import org.testng.annotations.BeforeMethod;
 
@@ -17,17 +24,27 @@ import org.testng.annotations.BeforeMethod;
 public class ArgsTest {
 
   private ArgumentParser parser;
-
+  
+  private InvalidArgumentExceptionMatcher<Throwable> matcher = null;
+  
   @BeforeMethod
   public void beforeMethod() {
     parser = new ArgumentParser();
     parser.addFlag('l');
     parser.addFlag('p').withIntegerValue();
     parser.addFlag('d').withStringValue();
+    matcher = null;
+  }
+  
+  @AfterMethod
+  public void afterMethod(ITestResult result) {
+    if(result.isSuccess() && matcher != null)
+      assertThat(result.getThrowable(),matcher);
   }
 
-  @Test(groups = { "all" }, expectedExceptions = IllegalArgumentException.class)
+  @Test(groups = { "all" }, expectedExceptions = InvalidArgumentException.class)
   public void IllegalValue() {
+    matcher = new InvalidArgumentExceptionMatcher<>(Reasons.INVALIDVALUE);
     parser.parse(new String[] { "-l", "-p", "xxx", "-d", "/usr/logs" });
   }
 
@@ -39,8 +56,9 @@ public class ArgsTest {
     assertTrue((Boolean) value);
   }
 
-  @Test(groups = { "all" }, expectedExceptions = IllegalArgumentException.class)
+  @Test(groups = { "all" }, expectedExceptions = InvalidArgumentException.class)
   public void IllegalValueOfBooleanFlag() {
+    matcher = new InvalidArgumentExceptionMatcher<>(Reasons.INVALIDVALUE);
     parser.parse(new String[] { "-l", "false", "-p", "8080", "-d", "/usr/logs" });
   }
 
@@ -73,13 +91,15 @@ public class ArgsTest {
     parser.parse(new String[] { "-l", "-p", "8080", "-d", "/usr/logs" });
   }
 
-  @Test(groups = { "group2" }, expectedExceptions = IllegalArgumentException.class)
+  @Test(groups = { "group2" }, expectedExceptions = InvalidArgumentException.class)
   public void ArgumentsInIncorrectOrder() {
+    matcher = new InvalidArgumentExceptionMatcher<>(Reasons.INCORRECTORDEROFARGUMENTS);
     parser.parse(new String[] { "-p", "8080", "-l", "-d", "/usr/logs" });
   }
 
-  @Test(groups = { "group2" }, expectedExceptions = IllegalArgumentException.class)
+  @Test(groups = { "group2" }, expectedExceptions = InvalidArgumentException.class)
   public void TooManyArguments() {
+    matcher = new InvalidArgumentExceptionMatcher<>(Reasons.TOOMANYARGUMENTS);
     parser.parse(new String[] { "-l", "-p", "8080", "-d", "/usr/logs", "-x" });
   }
 

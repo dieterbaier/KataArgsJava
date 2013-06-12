@@ -46,7 +46,7 @@ public class ArgumentFlag {
     return !(valueType == Boolean.class);
   }
 
-  void setValue(final String value) throws IllegalArgumentException {
+  void setValue(final String value) throws InvalidArgumentException {
     try {
       if (valueType == Integer.class) {
         this.value = Integer.parseInt(value);
@@ -55,7 +55,7 @@ public class ArgumentFlag {
         this.value = new String(value);
     }
     catch (Exception e) {
-      throw new IllegalArgumentException("Illegal value " + value + " for flag " + name, e);
+      throw new InvalidArgumentException(InvalidArgumentException.Reasons.INVALIDVALUE, "Illegal value " + value + " for flag " + name, e);
     }
   }
 
