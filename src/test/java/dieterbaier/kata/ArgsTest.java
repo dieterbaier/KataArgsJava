@@ -5,7 +5,6 @@ import dieterbaier.kata.args.ArgumentParser;
 import dieterbaier.kata.args.InvalidArgumentException;
 import dieterbaier.kata.args.InvalidArgumentException.Reasons;
 
-import org.hamcrest.Matcher;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.AssertJUnit;
