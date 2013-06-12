@@ -50,7 +50,7 @@ public class ArgumentParser {
           checkSize(givenFlags);
         }
         else {
-          validFlagsStartPosition = ++j;
+          validFlagsStartPosition = j + 1;
           break;
         }
       }

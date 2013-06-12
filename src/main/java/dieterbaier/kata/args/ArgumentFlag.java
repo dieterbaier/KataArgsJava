@@ -15,16 +15,6 @@ public class ArgumentFlag {
 
   private Object   value;
 
-  public ArgumentFlag(final char name) {
-    this.name = name;
-    setDefaultValue();
-  }
-
-  private void setDefaultValue() {
-    this.valueType = Boolean.class;
-    this.value = false;
-  }
-
   public void withIntegerValue() {
     this.valueType = Integer.class;
     this.value = 0;
@@ -35,28 +25,28 @@ public class ArgumentFlag {
     this.value = "";
   }
 
-  public boolean isValid(String potentialFlag) {
-    if (isPotentialFlag(potentialFlag))
-      return potentialFlag.charAt(1) == name;
-    else
-      return false;
+  ArgumentFlag(final char name) {
+    this.name = name;
+    setDefaultValue();
   }
 
-  public static boolean isPotentialFlag(String potentialFlag) {
+  boolean isValid(String potentialFlag) {
+      return isPotentialFlag(potentialFlag) && potentialFlag.charAt(1) == name;
+  }
+
+  static boolean isPotentialFlag(String potentialFlag) {
     return potentialFlag != null && potentialFlag.length() == 2;
   }
 
-  public Object value() {
+  Object value() {
     return value;
   }
 
-  public boolean needsValue() {
+  boolean needsValue() {
     return !(valueType == Boolean.class);
   }
 
-  public void setValue(final String value) throws IllegalArgumentException {
-    if (value == null)
-      throw new IllegalArgumentException("Illegal value null for flag " + name);
+  void setValue(final String value) throws IllegalArgumentException {
     try {
       if (valueType == Integer.class) {
         this.value = Integer.parseInt(value);
@@ -69,26 +59,17 @@ public class ArgumentFlag {
     }
   }
 
-  @Override
-  public int hashCode() {
-    return "ArgumentFlag".hashCode() + name + value.hashCode() + valueType.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null)
-      return false;
-    if (this == obj)
-      return true;
-    return this.hashCode() == obj.hashCode();
-  }
-
-  public Character name() {
+  Character name() {
     return name;
   }
 
-  public void setValue(boolean b) {
+  void setValue(boolean b) {
     value = b;
+  }
+
+  private void setDefaultValue() {
+    this.valueType = Boolean.class;
+    this.value = false;
   }
 
 }
