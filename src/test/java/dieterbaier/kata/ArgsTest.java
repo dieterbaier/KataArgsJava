@@ -28,9 +28,9 @@ public class ArgsTest {
   @BeforeMethod
   public void beforeMethod() {
     argumentParser = new ArgumentParser();
-    argumentParser.addBooleanFlag('l', false);
-    argumentParser.addIntegerFlag('p', 0);
-    argumentParser.addStringFlag('d', "");
+    argumentParser.addFlag('l', false);
+    argumentParser.addFlag('p', 0);
+    argumentParser.addFlag('d', "");
   }
 
   @Test

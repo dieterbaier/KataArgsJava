@@ -11,15 +11,15 @@ public class ArgumentParser {
 
   private final String                      BLANKPLACEHOLDER = "%20";
 
-  public void addBooleanFlag(final char key, final boolean defaultValue) {
+  public void addFlag(final char key, final boolean defaultValue) {
     arguments.put(key, new BooleanArgument(key, defaultValue));
   }
 
-  public void addIntegerFlag(final char key, final int defaultValue) {
+  public void addFlag(final char key, final int defaultValue) {
     arguments.put(key, new IntegerArgument(key, defaultValue));
   }
 
-  public void addStringFlag(final char key, final String defaultValue) {
+  public void addFlag(final char key, final String defaultValue) {
     arguments.put(key, new StringArgument(key, defaultValue));
   }
 
