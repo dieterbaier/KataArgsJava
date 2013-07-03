@@ -1,24 +1,31 @@
 package dieterbaier.kata.args;
 
+import java.util.List;
+
 class IntegerArgument extends Argument<Integer> {
 
-  public IntegerArgument(final String key, final Integer defaultValue) {
+  IntegerArgument(final char key, final Integer defaultValue) {
     super(key, defaultValue);
   }
 
   @Override
-  public void setDefaultValueForGivenFlag() {
+  Integer convertToTypedValue(final String value) {
+    try {
+      return Integer.parseInt(value);
+    }
+    catch (final NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid argument for type " + getKey(), e);
+    }
+  }
+
+  @Override
+  void setDefaultValueForGivenFlag() {
     setValue("0");
   }
 
   @Override
-  public void setValue(final String value) {
-    try {
-      this.value = Integer.parseInt(value);
-    }
-    catch (final NumberFormatException e) {
-      throw new IllegalArgumentException("Value for flag " + getKey() + " is invalid", e);
-    }
+  Integer[] toArray(final List<Integer> typedValues) {
+    return typedValues.toArray(new Integer[typedValues.size()]);
   }
 
 }

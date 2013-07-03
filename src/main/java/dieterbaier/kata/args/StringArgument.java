@@ -1,19 +1,25 @@
 package dieterbaier.kata.args;
 
+import java.util.List;
+
 class StringArgument extends Argument<String> {
 
-  public StringArgument(final String key, final String defaultValue) {
+  StringArgument(final char key, final String defaultValue) {
     super(key, defaultValue);
   }
 
   @Override
-  public void setDefaultValueForGivenFlag() {
+  String convertToTypedValue(final String value) {
+    return value;
+  }
+
+  @Override
+  void setDefaultValueForGivenFlag() {
     setValue("");
   }
 
   @Override
-  public void setValue(final String value) {
-    this.value = value;
+  String[] toArray(final List<String> typedValues) {
+    return typedValues.toArray(new String[typedValues.size()]);
   }
-
 }
