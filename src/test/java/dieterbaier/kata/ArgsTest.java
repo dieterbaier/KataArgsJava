@@ -40,6 +40,11 @@ public class ArgsTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void illegalFlag() {
+    argumentParser.parse(new String[] { "-x", "-d", "/any/dir", "-p", "8080", "-l" });
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void illegalLoggingFlag() {
     argumentParser.parse(new String[] { "-l", "xxxx", "-p", "-d", "/any/dir" });
   }
@@ -47,6 +52,11 @@ public class ArgsTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void illegalPortFlag() {
     argumentParser.parse(new String[] { "-l", "-p", "xyz", "-d", "/any/dir" });
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void illegalStartOfArguments() {
+    argumentParser.parse(new String[] { "illegalArgumentAtBeginning", "-d", "/any/dir", "-p", "8080", "-l" });
   }
 
   @Test

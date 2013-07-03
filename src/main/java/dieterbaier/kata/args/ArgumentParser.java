@@ -32,6 +32,8 @@ public class ArgumentParser {
       final String nextArgument = i < args.length - 1 ? args[i + 1] : null;
       if (isFlag(currentArg))
         key = currentArg.charAt(1);
+      if (!arguments.keySet().contains(key))
+        throw new IllegalArgumentException("Illegal flag" + key);
       final Argument<?> currentArgument = arguments.get(key);
       String value;
       if (nextArgument == null || isFlag(nextArgument))
