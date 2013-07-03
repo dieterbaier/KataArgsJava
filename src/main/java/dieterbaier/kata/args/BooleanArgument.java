@@ -1,29 +1,17 @@
 package dieterbaier.kata.args;
 
-import java.util.List;
-
 class BooleanArgument extends Argument<Boolean> {
 
-  BooleanArgument(final char key, final Boolean defaultValue) {
-    super(key, defaultValue);
+  BooleanArgument(final boolean defaultValue, final boolean defaultValueForSetFlag) {
+    super(defaultValue, defaultValueForSetFlag);
   }
 
   @Override
-  Boolean convertToTypedValue(final String value) {
-    final String valueWithLowerCase = value.toLowerCase();
-    if (value == null || !"true".equals(valueWithLowerCase) && !"false".equals(valueWithLowerCase))
-      throw new IllegalArgumentException("Invalid argument for flag " + getKey());
+  protected Boolean convertToTypedValue(final String value) {
+    final String lowerCaseValue = value.toLowerCase();
+    if (!"true".equals(lowerCaseValue) && !"false".equals(lowerCaseValue))
+      throw new IllegalArgumentException();
     return Boolean.parseBoolean(value);
-  }
-
-  @Override
-  void setDefaultValueForGivenFlag() {
-    setValue("true");
-  }
-
-  @Override
-  Boolean[] toArray(final List<Boolean> typedValues) {
-    return typedValues.toArray(new Boolean[typedValues.size()]);
   }
 
 }

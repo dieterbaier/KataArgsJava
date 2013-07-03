@@ -2,80 +2,50 @@ package dieterbaier.kata.args;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ArgumentParser {
 
-  private final Map<Character, Argument<?>> arguments        = new HashMap<>();
+  private final Map<Character, Argument<?>> arguments = new HashMap<Character, Argument<?>>();
 
-  private final String                      BLANKPLACEHOLDER = "%20";
+  public ArgumentParser() {}
 
-  public void addFlag(final char key, final boolean defaultValue) {
-    arguments.put(key, new BooleanArgument(key, defaultValue));
+  public void addFlag(final char key, final boolean defaultValue, final boolean defaultValueForSetFlag) {
+    arguments.put(key, new BooleanArgument(defaultValue, defaultValueForSetFlag));
   }
 
-  public void addFlag(final char key, final int defaultValue) {
-    arguments.put(key, new IntegerArgument(key, defaultValue));
+  public void addFlag(final char key, final Integer defaultValue, final Integer defaultValueForSetFlag) {
+    arguments.put(key, new IntegerArgument(defaultValue, defaultValueForSetFlag));
   }
 
-  public void addFlag(final char key, final String defaultValue) {
-    arguments.put(key, new StringArgument(key, defaultValue));
+  public void addFlag(final char key, final String defaultValue, final String defaultValueForSetFlag) {
+    arguments.put(key, new StringArgument(defaultValue, defaultValueForSetFlag));
   }
 
-  public String[] getAllValues(final char key) {
-    return arguments.get(key).getValues();
-  }
-
-  public String getValue(final char key) {
-    final Argument<?> argument = arguments.get(key);
-    return argument.getValue().replaceAll(BLANKPLACEHOLDER, " ");
-  }
-
-  public void parse(final String arguments) {
-    String manipulatedArguments = arguments;
-    final Matcher parser = Pattern.compile("\".*\"").matcher(manipulatedArguments);
-    while (parser.find()) {
-      final String origString = parser.group();
-      manipulatedArguments = manipulatedArguments.replaceAll(origString, origString.replaceAll(" ", BLANKPLACEHOLDER))
-          .replaceAll("\"", "");
-    }
-    parse(manipulatedArguments.split(" "));
+  public String get(final char key) {
+    return arguments.get(key).getValue();
   }
 
   public void parse(final String[] args) {
     for (int i = 0; i < args.length; i++) {
-      final String nextArg = i < args.length - 1 ? args[i + 1] : "";
-      if (isFlagWithArgument(args[i], nextArg))
+      char key = ' ';
+      final String currentArg = args[i];
+      final String nextArgument = i < args.length - 1 ? args[i + 1] : null;
+      if (isFlag(currentArg))
+        key = currentArg.charAt(1);
+      final Argument<?> currentArgument = arguments.get(key);
+      String value;
+      if (nextArgument == null || isFlag(nextArgument))
+        value = currentArgument.getDefaultValueForSetFlag();
+      else {
+        value = nextArgument;
         i++;
+      }
+      currentArgument.setValue(value);
     }
-  }
-
-  private char extractKeyValue(final String argument) {
-    return argument.substring(1).charAt(0);
   }
 
   private boolean isFlag(final String argument) {
-    if (argument == null || argument.length() != 2 || !argument.startsWith("-"))
-      return false;
-    return arguments.keySet().contains(extractKeyValue(argument));
-  }
-
-  private boolean isFlagWithArgument(final String currentArg, final String nextArg) {
-    boolean isArgumentForFlagAvailable = false;
-
-    if (!isFlag(currentArg))
-      throw new IllegalArgumentException("Invalid Flag");
-
-    final Argument<?> argument = arguments.get(extractKeyValue(currentArg));
-    if (!nextArg.isEmpty() && !isFlag(nextArg)) {
-      argument.setValue(nextArg);
-      isArgumentForFlagAvailable = true;
-    }
-    else
-      argument.setDefaultValueForGivenFlag();
-
-    return isArgumentForFlagAvailable;
+    return argument != null && argument.length() == 2 && argument.startsWith("-");
   }
 
 }
