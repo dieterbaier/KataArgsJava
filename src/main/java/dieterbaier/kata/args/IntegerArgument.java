@@ -1,8 +1,8 @@
 package dieterbaier.kata.args;
 
-class IntegerArgument extends Argument<Integer> {
+public class IntegerArgument extends Argument<Integer> {
 
-  IntegerArgument(final Integer defaultValue, final Integer defaultValueForSetFlag) {
+  public IntegerArgument(final Integer defaultValue, final Integer defaultValueForSetFlag) {
     super(defaultValue, defaultValueForSetFlag);
   }
 

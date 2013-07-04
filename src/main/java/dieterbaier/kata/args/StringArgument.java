@@ -1,8 +1,8 @@
 package dieterbaier.kata.args;
 
-class StringArgument extends Argument<String> {
+public class StringArgument extends Argument<String> {
 
-  StringArgument(final String defaultValue, final String defaultValueForSetFlag) {
+  public StringArgument(final String defaultValue, final String defaultValueForSetFlag) {
     super(defaultValue, defaultValueForSetFlag);
   }
 

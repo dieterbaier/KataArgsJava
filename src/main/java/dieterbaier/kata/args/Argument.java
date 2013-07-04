@@ -1,28 +1,30 @@
 package dieterbaier.kata.args;
 
-abstract class Argument<T> {
+public abstract class Argument<T> {
   private final T defaultValue;
 
   private T       value;
 
   private final T defaultValueForSetFlag;
 
-  Argument(final T defaultValue, final T defaultValueForSetFlag) {
+  public Argument(final T defaultValue, final T defaultValueForSetFlag) {
     this.defaultValue = defaultValue;
     this.defaultValueForSetFlag = defaultValueForSetFlag;
   }
 
-  String getDefaultValue() {
-    return defaultValue.toString();
+  public T getValue() {
+    if (value == null)
+      return defaultValue;
+    return value;
   }
 
   String getDefaultValueForSetFlag() {
     return defaultValueForSetFlag.toString();
   }
 
-  String getValue() {
+  String getValueAsString() {
     if (value == null)
-      return getDefaultValue();
+      return defaultValue.toString();
     return value.toString();
   }
 
