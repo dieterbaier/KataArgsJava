@@ -5,16 +5,16 @@ import java.util.Map;
 
 public class ArgumentParser {
 
-  private final Map<Character, Argument<?>> arguments = new HashMap<Character, Argument<?>>();
+  private final Map<Character, Argument<?>> allreadySetFlags = new HashMap<Character, Argument<?>>();
 
   public ArgumentParser() {}
 
-  public void addFlag(final char key, final Argument<?> argument) {
-    arguments.put(key, argument);
+  public void addFlag(final char flag, final Argument<?> argument) {
+    allreadySetFlags.put(flag, argument);
   }
 
-  public String getValue(final char key) {
-    return arguments.get(key).getValueAsString();
+  public String getValue(final char flag) {
+    return allreadySetFlags.get(flag).getValueAsString();
   }
 
   public void parse(final String[] args) {
@@ -24,22 +24,21 @@ public class ArgumentParser {
       final String potentialFlag = args[indexOfCurrentArgument];
       final String nextGivenArgument = isOneMoreArgumentAvailable(args, indexOfCurrentArgument) ? getNextArgument(args,
           indexOfCurrentArgument) : null;
-      final char key = isFlag(potentialFlag) ? getFlagValue(potentialFlag) : ' ';
-      final boolean isNextArgumentIsPartOfGivenArgument = setValueForCurrentFlag(key, nextGivenArgument);
-      if (isNextArgumentIsPartOfGivenArgument)
+      final char flagsKey = isFlag(potentialFlag) ? getFlagsKey(potentialFlag) : ' ';
+      if (isNextArgumentIsPartOfGivenFlag(getAllreadySetFlag(flagsKey), nextGivenArgument))
         // we skip the next argument, since it belonged to the current one and should not be handled by the loop
         // therefore
         indexOfCurrentArgument++;
     }
   }
 
-  private Argument<?> getAllreadySetArgument(final char key) {
-    if (!arguments.keySet().contains(key))
-      throw new IllegalArgumentException("Illegal flag" + key);
-    return arguments.get(key);
+  private Argument<?> getAllreadySetFlag(final char flag) {
+    if (!allreadySetFlags.keySet().contains(flag))
+      throw new IllegalArgumentException("Illegal flag" + flag);
+    return allreadySetFlags.get(flag);
   }
 
-  private char getFlagValue(final String potentialFlag) {
+  private char getFlagsKey(final String potentialFlag) {
     return potentialFlag.charAt(1);
   }
 
@@ -51,24 +50,23 @@ public class ArgumentParser {
     return argument != null && argument.length() == 2 && argument.startsWith("-");
   }
 
-  private boolean isNextArgumentPartOfThisArgument(final String nextGivenArgument) {
-    return nextGivenArgument != null && !isFlag(nextGivenArgument);
+  private boolean isNextArgumentIsPartOfGivenFlag(final Argument<?> argumentOfGivenFlag, final String nextArgument) {
+    if (isNextArgumentAFlagsArgument(nextArgument)) {
+      argumentOfGivenFlag.setValue(nextArgument);
+      return true;
+    }
+    else {
+      argumentOfGivenFlag.setValue(argumentOfGivenFlag.getDefaultValueForSetFlag());
+      return false;
+    }
+  }
+
+  private boolean isNextArgumentAFlagsArgument(final String nextArgument) {
+    return nextArgument != null && !isFlag(nextArgument);
   }
 
   private boolean isOneMoreArgumentAvailable(final String[] args, final int indexOfCurrentArgument) {
     return indexOfCurrentArgument < args.length - 1;
-  }
-
-  private boolean setValueForCurrentFlag(final char key, final String nextGivenArgument) {
-    final Argument<?> currentArgument = getAllreadySetArgument(key);
-    if (isNextArgumentPartOfThisArgument(nextGivenArgument)) {
-      currentArgument.setValue(nextGivenArgument);
-      return true;
-    }
-    else {
-      currentArgument.setValue(currentArgument.getDefaultValueForSetFlag());
-      return false;
-    }
   }
 
 }
