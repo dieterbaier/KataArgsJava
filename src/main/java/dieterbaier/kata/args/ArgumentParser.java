@@ -1,7 +1,9 @@
 package dieterbaier.kata.args;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ArgumentParser {
 
@@ -18,6 +20,7 @@ public class ArgumentParser {
   }
 
   public void parse(final String[] args) {
+    final Set<Character> allreadyHandledFlags = new HashSet<>();
     // we need to use this kind of for-loop because in case one argument belongs to the other argument, the loop must
     // skip this argument
     for (int indexOfCurrentArgument = 0; indexOfCurrentArgument < args.length; indexOfCurrentArgument++) {
@@ -25,11 +28,19 @@ public class ArgumentParser {
       final String nextGivenArgument = isOneMoreArgumentAvailable(args, indexOfCurrentArgument) ? getNextArgument(args,
           indexOfCurrentArgument) : null;
       final char flagsKey = isFlag(potentialFlag) ? getFlagsKey(potentialFlag) : ' ';
+      checkIfFlagWasAllreadyHandled(allreadyHandledFlags, flagsKey);
       if (isNextArgumentIsPartOfGivenFlag(getAllreadySetFlag(flagsKey), nextGivenArgument))
         // we skip the next argument, since it belonged to the current one and should not be handled by the loop
         // therefore
         indexOfCurrentArgument++;
     }
+  }
+
+  private void checkIfFlagWasAllreadyHandled(final Set<Character> allreadyHandledFlags, final char currentFlagToHandle) {
+    if (allreadyHandledFlags.contains(currentFlagToHandle))
+      throw new IllegalArgumentException("Flag " + currentFlagToHandle + " twice in the argument-list");
+    else
+      allreadyHandledFlags.add(currentFlagToHandle);
   }
 
   private Argument<?> getAllreadySetFlag(final char flag) {
@@ -47,7 +58,12 @@ public class ArgumentParser {
   }
 
   private boolean isFlag(final String argument) {
-    return argument != null && argument.length() == 2 && argument.startsWith("-");
+    return argument != null && argument.length() == 2 && argument.startsWith("-")
+        && allreadySetFlags.containsKey(getFlagsKey(argument));
+  }
+
+  private boolean isNextArgumentAFlagsArgument(final String nextArgument) {
+    return nextArgument != null && !isFlag(nextArgument);
   }
 
   private boolean isNextArgumentIsPartOfGivenFlag(final Argument<?> argumentOfGivenFlag, final String nextArgument) {
@@ -59,10 +75,6 @@ public class ArgumentParser {
       argumentOfGivenFlag.setValue(argumentOfGivenFlag.getDefaultValueForSetFlag());
       return false;
     }
-  }
-
-  private boolean isNextArgumentAFlagsArgument(final String nextArgument) {
-    return nextArgument != null && !isFlag(nextArgument);
   }
 
   private boolean isOneMoreArgumentAvailable(final String[] args, final int indexOfCurrentArgument) {

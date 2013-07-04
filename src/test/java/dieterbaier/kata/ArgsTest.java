@@ -35,6 +35,39 @@ public class ArgsTest {
   }
 
   @Test
+  public void booleanFlagNotGiven() {
+    argumentParser.parse(new String[] { "-p", "8080", "-d", "/any/dir" });
+    assertThat(argumentParser.getValue('l'), is("false"));
+    assertThat(loggingArgument.getValue(), is(false));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void booleanFlagTwice() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir", "-l", "true" });
+  }
+
+  @Test
+  public void booleanFlagWithFalseArgument() {
+    argumentParser.parse(new String[] { "-l", "false", "-p", "8080", "-d", "/any/dir" });
+    assertThat(argumentParser.getValue('l'), is("false"));
+    assertThat(loggingArgument.getValue(), is(false));
+  }
+
+  @Test
+  public void booleanFlagWithoutArgument() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir" });
+    assertThat(argumentParser.getValue('l'), is("true"));
+    assertThat(loggingArgument.getValue(), is(true));
+  }
+
+  @Test
+  public void booleanFlagWithTrueArgument() {
+    argumentParser.parse(new String[] { "-l", "true", "-p", "8080", "-d", "/any/dir" });
+    assertThat(argumentParser.getValue('l'), is("true"));
+    assertThat(loggingArgument.getValue(), is(true));
+  }
+
+  @Test
   public void differentOrder() {
     argumentParser.parse(new String[] { "-d", "/any/dir", "-p", "8080", "-l" });
     assertThat(argumentParser.getValue('d'), is("/any/dir"));
@@ -43,19 +76,6 @@ public class ArgsTest {
     assertThat(portArgument.getValue(), is(8080));
     assertThat(argumentParser.getValue('l'), is("true"));
     assertThat(loggingArgument.getValue(), is(true));
-  }
-
-  @Test
-  public void directoryFlagWithArgument() {
-    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir" });
-    assertThat(argumentParser.getValue('d'), is("/any/dir"));
-  }
-
-  @Test
-  public void directoryFlagWithoutArgument() {
-    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d" });
-    assertThat(argumentParser.getValue('d'), is("deleted"));
-    assertThat(pathArgument.getValue(), is("deleted"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -78,52 +98,53 @@ public class ArgsTest {
     argumentParser.parse(new String[] { "illegalArgumentAtBeginning", "-d", "/any/dir", "-p", "8080", "-l" });
   }
 
-  @Test
-  public void loggingFlagWithFalseArgument() {
-    argumentParser.parse(new String[] { "-l", "false", "-p", "8080", "-d", "/any/dir" });
-    assertThat(argumentParser.getValue('l'), is("false"));
-    assertThat(loggingArgument.getValue(), is(false));
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void integerFlagTwice() {
+    argumentParser.parse(new String[] { "-p", "-l", "-p", "8080", "-d", "/any/dir" });
   }
 
   @Test
-  public void loggingFlagWithoutArgument() {
-    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir" });
-    assertThat(argumentParser.getValue('l'), is("true"));
-    assertThat(loggingArgument.getValue(), is(true));
-  }
-
-  @Test
-  public void loggingFlagWithTrueArgument() {
-    argumentParser.parse(new String[] { "-l", "true", "-p", "8080", "-d", "/any/dir" });
-    assertThat(argumentParser.getValue('l'), is("true"));
-    assertThat(loggingArgument.getValue(), is(true));
-  }
-
-  @Test
-  public void noLoggingFlag() {
-    argumentParser.parse(new String[] { "-p", "8080", "-d", "/any/dir" });
-    assertThat(argumentParser.getValue('l'), is("false"));
-    assertThat(loggingArgument.getValue(), is(false));
-  }
-
-  @Test
-  public void portFlagWithArgument() {
+  public void integerFlagWithArgument() {
     argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir" });
     assertThat(argumentParser.getValue('p'), is("8080"));
     assertThat(portArgument.getValue(), is(8080));
   }
 
   @Test
-  public void portFlagWithMinusArgument() {
+  public void integerFlagWithMinusArgument() {
     argumentParser.parse(new String[] { "-l", "-p", "-8080", "-d", "/any/dir" });
     assertThat(argumentParser.getValue('p'), is("-8080"));
     assertThat(portArgument.getValue(), is(-8080));
   }
 
   @Test
-  public void portFlagWithoutArgument() {
+  public void integerFlagWithoutArgument() {
     argumentParser.parse(new String[] { "-l", "-p", "-d", "/any/dir" });
     assertThat(argumentParser.getValue('p'), is("-1"));
     assertThat(portArgument.getValue(), is(-1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void stringFlagTwice() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "-d" });
+  }
+
+  @Test
+  public void stringFlagWithArgument() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "/any/dir" });
+    assertThat(argumentParser.getValue('d'), is("/any/dir"));
+  }
+
+  @Test
+  public void stringFlagWithArgumentLookingLikeFlag() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d", "-x" });
+    assertThat(argumentParser.getValue('d'), is("-x"));
+  }
+
+  @Test
+  public void stringFlagWithoutArgument() {
+    argumentParser.parse(new String[] { "-l", "-p", "8080", "-d" });
+    assertThat(argumentParser.getValue('d'), is("deleted"));
+    assertThat(pathArgument.getValue(), is("deleted"));
   }
 }
