@@ -16,4 +16,9 @@ public class IntegerArgument extends Argument<Integer> {
     }
   }
 
+  @Override
+  protected Integer[] newTypedArray(final int size) {
+    return new Integer[size];
+  }
+
 }

@@ -14,4 +14,9 @@ public class BooleanArgument extends Argument<Boolean> {
     return Boolean.parseBoolean(value);
   }
 
+  @Override
+  protected Boolean[] newTypedArray(final int size) {
+    return new Boolean[size];
+  }
+
 }

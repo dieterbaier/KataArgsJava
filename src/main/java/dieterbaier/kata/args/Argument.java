@@ -1,37 +1,36 @@
 package dieterbaier.kata.args;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Argument<T> {
-  private final T defaultValue;
+  private final T       defaultValue;
 
-  private T       value;
+  private final List<T> value = new ArrayList<>(0);
 
-  private final T defaultValueForSetFlag;
+  private final T       defaultValueForSetFlag;
 
   public Argument(final T defaultValue, final T defaultValueForSetFlag) {
     this.defaultValue = defaultValue;
     this.defaultValueForSetFlag = defaultValueForSetFlag;
   }
 
-  public T getValue() {
-    if (value == null)
-      return defaultValue;
-    return value;
+  public synchronized T[] getValue() {
+    if (value.size() <= 0)
+      value.add(defaultValue);
+    return value.toArray(newTypedArray(value.size()));
   }
 
   String getDefaultValueForSetFlag() {
     return defaultValueForSetFlag.toString();
   }
 
-  String getValueAsString() {
-    if (value == null)
-      return defaultValue.toString();
-    return value.toString();
-  }
-
-  void setValue(final String value) {
-    this.value = convertToTypedValue(value);
+  synchronized void setValue(final String value) {
+    this.value.add(convertToTypedValue(value));
   }
 
   protected abstract T convertToTypedValue(final String value);
+
+  protected abstract T[] newTypedArray(final int size);
 
 }

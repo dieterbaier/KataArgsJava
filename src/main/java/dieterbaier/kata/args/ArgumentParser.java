@@ -1,11 +1,16 @@
 package dieterbaier.kata.args;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ArgumentParser {
+
+  private static final String               BLANKPLACEHOLDER = "%20";
 
   private final Map<Character, Argument<?>> allreadySetFlags = new HashMap<Character, Argument<?>>();
 
@@ -16,7 +21,23 @@ public class ArgumentParser {
   }
 
   public String getValue(final char flag) {
-    return allreadySetFlags.get(flag).getValueAsString();
+    return Arrays.toString(allreadySetFlags.get(flag).getValue()).replaceAll("\\[", "").replaceAll("\\]", "")
+        .replaceAll(", ", ",");
+  }
+
+  public String[] getValues(final char flag) {
+    return getValue(flag).split(",");
+  }
+
+  public void parse(final String argumentList) {
+    String manipulatedList = argumentList;
+    final Matcher parser = Pattern.compile("\".*\"").matcher(argumentList);
+    while (parser.find()) {
+      final String originalText = parser.group();
+      final String newText = originalText.replaceAll("\"", "").replaceAll(" ", BLANKPLACEHOLDER);
+      manipulatedList = manipulatedList.replace(originalText, newText);
+    }
+    parse(manipulatedList.split(" "));
   }
 
   public void parse(final String[] args) {
@@ -68,7 +89,9 @@ public class ArgumentParser {
 
   private boolean isNextArgumentIsPartOfGivenFlag(final Argument<?> argumentOfGivenFlag, final String nextArgument) {
     if (isNextArgumentAFlagsArgument(nextArgument)) {
-      argumentOfGivenFlag.setValue(nextArgument);
+      final String[] values = nextArgument.split(",");
+      for (final String value : values)
+        argumentOfGivenFlag.setValue(value.replaceAll(BLANKPLACEHOLDER, " "));
       return true;
     }
     else {

@@ -11,4 +11,9 @@ public class StringArgument extends Argument<String> {
     return value;
   }
 
+  @Override
+  protected String[] newTypedArray(final int size) {
+    return new String[size];
+  }
+
 }
